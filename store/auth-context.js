@@ -12,22 +12,6 @@ function AuthContextProvider({ children }) {
 
     const [authToken, setAuthToken] = useState();
 
-    useEffect(() => {
-
-        async function fetchToken() {
-
-            const storedToken = await AsyncStorage.getItem('storedToken');
-
-            if (storedToken) {
-                setAuthToken(storedToken);
-            }
-
-        }
-
-        fetchToken();
-
-    }, []);
-
     function authenticate(token) {
         setAuthToken(token);
         AsyncStorage.setItem('storedToken', token);
@@ -35,6 +19,7 @@ function AuthContextProvider({ children }) {
 
     function logout() {
         setAuthToken(null);
+        AsyncStorage.removeItem('storedToken');
     }
 
     const value = {
