@@ -1,9 +1,10 @@
+import { View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import AppLoading from 'expo-app-loading';
+import * as SplashScreen from 'expo-splash-screen';
 
 import LoginScreen from './screens/LoginScreen';
 import SignupScreen from './screens/SignupScreen';
@@ -75,7 +76,7 @@ function Navigation() {
 
 function Root() {
 
-  const [isTryingLogin, setIsTryingLogin] = useState(true);
+  const [isAppReady, setIsAppReady] = useState(false);
 
   const authCtx = useContext(AuthContext);
 
@@ -89,7 +90,7 @@ function Root() {
         authCtx.authenticate(storedToken);
       }
 
-      setIsTryingLogin(false);
+      setIsAppReady(true);
 
     }
 
@@ -97,11 +98,21 @@ function Root() {
 
   }, []);
 
-  if (isTryingLogin) {
-    return <AppLoading />;
+  const onLayoutRootView = useCallback(async () => {
+    if (isAppReady) {
+      await SplashScreen.hideAsync();
+    }
+  }, [isAppReady]);
+
+  if (!isAppReady) {
+    return null;
   }
 
-  return <Navigation />;
+  return (
+    <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+      <Navigation />
+    </View>
+  );
 
 }
 
